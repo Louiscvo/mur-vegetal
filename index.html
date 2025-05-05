@@ -67,15 +67,15 @@
 
         document.getElementById("field1").textContent = data.field1 + " %";
         document.getElementById("field2").textContent = data.field2 + " %";
-        document.getElementById("field3").textContent = data.field3 + " lux";
+        document.getElementById("field3").textContent = data.field3 + " lux"; // Luminosité affichée en lux
         document.getElementById("field4").textContent = data.field4 + " °C";
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
     }
 
-    setInterval(updateData, 5000);
-    updateData();
+    setInterval(updateData, 5000); // mise à jour toutes les 5 secondes
+    updateData(); // appel initial
   </script>
 
 </body>
