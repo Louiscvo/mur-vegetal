@@ -4,21 +4,32 @@
   <meta charset="UTF-8">
   <title>Mur Végétal – Suivi en direct</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    html, body {
+      margin: 0;
+      padding: 0;
       background-color: #e6f2f1;
-      text-align: center;
-      padding: 20px;
+      font-family: Arial, sans-serif;
     }
+
     h1 {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
       color: #2C75FF;
-    }
-    spline-viewer {
-      width: 100%;
-      height: 500px;
+      font-size: 32px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px 20px;
       border-radius: 12px;
-      margin-bottom: 30px;
     }
+
+    spline-viewer {
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none; /* empêche le scroll de bloquer sur la scène */
+    }
+
     .card {
       background-color: white;
       border-radius: 12px;
@@ -26,46 +37,55 @@
       padding: 20px;
       margin: 15px auto;
       width: 300px;
+      text-align: center;
     }
+
     .label {
       font-weight: bold;
       color: #444;
     }
+
     .value {
       font-size: 2em;
       color: #2C75FF;
     }
+
+    .data-section {
+      padding: 40px 20px;
+    }
   </style>
 
-  <!-- 🚀 Import du composant Spline -->
   <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.90/build/spline-viewer.js"></script>
 </head>
 <body>
 
+  <!-- Titre fixe par-dessus -->
   <h1>🌿 Mur Végétal – Données en direct</h1>
 
-  <!-- 🌿 Spline Viewer intégré -->
+  <!-- Scène Spline plein écran sans bloquer le scroll -->
   <spline-viewer url="https://prod.spline.design/oooqd80HzygYAfrZ/scene.splinecode"></spline-viewer>
 
-  <!-- 📊 Données capteurs ThingSpeak -->
-  <div class="card">
-    <div class="label">Humidité du sol</div>
-    <div class="value" id="field1">...</div>
-  </div>
+  <!-- Section données capteurs -->
+  <div class="data-section">
+    <div class="card">
+      <div class="label">Humidité du sol</div>
+      <div class="value" id="field1">...</div>
+    </div>
 
-  <div class="card">
-    <div class="label">Hygrométrie (air)</div>
-    <div class="value" id="field2">...</div>
-  </div>
+    <div class="card">
+      <div class="label">Hygrométrie (air)</div>
+      <div class="value" id="field2">...</div>
+    </div>
 
-  <div class="card">
-    <div class="label">Luminosité</div>
-    <div class="value" id="field3">...</div>
-  </div>
+    <div class="card">
+      <div class="label">Luminosité</div>
+      <div class="value" id="field3">...</div>
+    </div>
 
-  <div class="card">
-    <div class="label">Température</div>
-    <div class="value" id="field4">...</div>
+    <div class="card">
+      <div class="label">Température</div>
+      <div class="value" id="field4">...</div>
+    </div>
   </div>
 
   <script>
