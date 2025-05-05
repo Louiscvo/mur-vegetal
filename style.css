@@ -15,19 +15,21 @@ h1 {
   transform: translateX(-50%);
   z-index: 10;
   color: #2C75FF;
-  font-size: 32px;
+  font-size: 5vw;
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   backdrop-filter: blur(4px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  text-align: center;
 }
 
 spline-viewer {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 60vh;
   border: none;
-  pointer-events: none; /* empêche le scroll de bloquer */
+  pointer-events: none;
+  display: block;
 }
 
 .card {
@@ -36,7 +38,8 @@ spline-viewer {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   padding: 20px;
   margin: 15px auto;
-  width: 300px;
+  width: 90%;
+  max-width: 300px;
   text-align: center;
 }
 
@@ -52,4 +55,25 @@ spline-viewer {
 
 .data-section {
   padding: 40px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* 📱 Responsive titre sur petit écran */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 6vw;
+    padding: 8px 12px;
+  }
+
+  .value {
+    font-size: 1.5em;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 90%;
+  }
 }
