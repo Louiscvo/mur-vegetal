@@ -3,69 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title>Mur Végétal – Suivi en direct</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background-color: #e6f2f1;
-      font-family: Arial, sans-serif;
-    }
 
-    h1 {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      color: #2C75FF;
-      font-size: 32px;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 10px 20px;
-      border-radius: 12px;
-    }
+  <!-- ✅ Fichier CSS séparé -->
+  <link rel="stylesheet" href="style.css">
 
-    spline-viewer {
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none; /* empêche le scroll de bloquer sur la scène */
-    }
-
-    .card {
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin: 15px auto;
-      width: 300px;
-      text-align: center;
-    }
-
-    .label {
-      font-weight: bold;
-      color: #444;
-    }
-
-    .value {
-      font-size: 2em;
-      color: #2C75FF;
-    }
-
-    .data-section {
-      padding: 40px 20px;
-    }
-  </style>
-
+  <!-- 🌿 Spline viewer -->
   <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.90/build/spline-viewer.js"></script>
 </head>
 <body>
 
-  <!-- Titre fixe par-dessus -->
-  <h1>🌿 Mur Végétal – Données en direct</h1>
+  <!-- 🌿 Titre -->
+  <h1>Mur Végétal – Données en direct</h1>
 
-  <!-- Scène Spline plein écran sans bloquer le scroll -->
+  <!-- 🎨 Spline 3D plein écran -->
   <spline-viewer url="https://prod.spline.design/oooqd80HzygYAfrZ/scene.splinecode"></spline-viewer>
 
-  <!-- Section données capteurs -->
+  <!-- 📊 Cartes de données -->
   <div class="data-section">
     <div class="card">
       <div class="label">Humidité du sol</div>
