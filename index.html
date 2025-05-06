@@ -7,30 +7,38 @@
 </head>
 <body>
 
-  <h1>Mur Végétal – Données en direct</h1>
+  <h1>🌿 Mur Végétal – Données en direct</h1>
 
-  <div class="data-section">
-    <div class="card">
-      <div class="label">Humidité du sol</div>
-      <div class="value" id="field1">...</div>
-    </div>
-    <div class="card">
-      <div class="label">Hygrométrie (air)</div>
-      <div class="value" id="field2">...</div>
-    </div>
-    <div class="card">
-      <div class="label">Luminosité</div>
-      <div class="value" id="field3">...</div>
-    </div>
-    <div class="card">
-      <div class="label">Température</div>
-      <div class="value" id="field4">...</div>
-    </div>
+  <div class="card">
+    <div class="label">Humidité du sol</div>
+    <div class="value" id="field1">...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Hygrométrie (air)</div>
+    <div class="value" id="field2">...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Luminosité</div>
+    <div class="value" id="field3">...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Température</div>
+    <div class="value" id="field4">...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Commande LED</div>
+    <button onclick="envoyerCommande(1)">Allumer 💡</button>
+    <button onclick="envoyerCommande(0)">Éteindre ❌</button>
   </div>
 
   <script>
     const channelID = 2948206;
     const readAPIKey = "D0TYQQ67TKJDODQ9";
+    const writeAPIKey = "88EEXGWW7VMIBMSO"; // écriture pour LED (field5)
 
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
@@ -45,6 +53,13 @@
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
+    }
+
+    function envoyerCommande(valeur) {
+      const url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=${valeur}`;
+      fetch(url)
+        .then(() => alert(valeur == 1 ? "LED allumée ✅" : "LED éteinte ❌"))
+        .catch(() => alert("Erreur d'envoi"));
     }
 
     setInterval(updateData, 5000);
