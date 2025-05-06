@@ -3,7 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <title>Mur Végétal – Suivi en direct</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e6f2f1;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #2C75FF;
+    }
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin: 15px auto;
+      width: 300px;
+    }
+    .label {
+      font-weight: bold;
+      color: #444;
+    }
+    .value {
+      font-size: 2em;
+      color: #2C75FF;
+    }
+  </style>
 </head>
 <body>
 
@@ -29,16 +55,9 @@
     <div class="value" id="field4">...</div>
   </div>
 
-  <div class="card">
-    <div class="label">Commande LED</div>
-    <button onclick="envoyerCommande(1)">Allumer 💡</button>
-    <button onclick="envoyerCommande(0)">Éteindre ❌</button>
-  </div>
-
   <script>
     const channelID = 2948206;
-    const readAPIKey = "D0TYQQ67TKJDODQ9";
-    const writeAPIKey = "88EEXGWW7VMIBMSO"; // écriture pour LED (field5)
+    const readAPIKey = "D0TYQQ67TKJDODQ9"; // ta clé de lecture
 
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
@@ -48,22 +67,15 @@
 
         document.getElementById("field1").textContent = data.field1 + " %";
         document.getElementById("field2").textContent = data.field2 + " %";
-        document.getElementById("field3").textContent = data.field3 + " lux";
+        document.getElementById("field3").textContent = data.field3 + " lux"; // Luminosité affichée en lux
         document.getElementById("field4").textContent = data.field4 + " °C";
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
     }
 
-    function envoyerCommande(valeur) {
-      const url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=${valeur}`;
-      fetch(url)
-        .then(() => alert(valeur == 1 ? "LED allumée ✅" : "LED éteinte ❌"))
-        .catch(() => alert("Erreur d'envoi"));
-    }
-
-    setInterval(updateData, 5000);
-    updateData();
+    setInterval(updateData, 5000); // mise à jour toutes les 5 secondes
+    updateData(); // appel initial
   </script>
 
 </body>
