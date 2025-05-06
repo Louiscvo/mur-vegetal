@@ -24,26 +24,16 @@
     .label {
       font-weight: bold;
       color: #444;
-      margin-bottom: 10px;
     }
     .value {
       font-size: 2em;
       color: #2C75FF;
-      margin: 10px 0;
     }
-    button {
-      font-size: 16px;
-      padding: 10px 20px;
-      margin: 5px;
-      border-radius: 8px;
-      border: none;
-      background-color: #2C75FF;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+    .on {
+      color: green;
     }
-    button:hover {
-      background-color: #1a52b4;
+    .off {
+      color: red;
     }
   </style>
 </head>
@@ -72,39 +62,37 @@
   </div>
 
   <div class="card">
-    <div class="label">Commande Pompe</div>
-    <button onclick="envoyerCommande(1)">Activer la pompe 💧</button>
-    <button onclick="envoyerCommande(0)">Arrêter la pompe ❌</button>
+    <div class="label">Pompe</div>
+    <div class="value" id="field5" class="off">...</div>
   </div>
 
   <script>
     const channelID = 2948206;
     const readAPIKey = "D0TYQQ67TKJDODQ9";
-    const writeAPIKey = "88EEXGWW7VMIBMSO";
 
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
+
         document.getElementById("field1").textContent = data.field1 + " %";
         document.getElementById("field2").textContent = data.field2 + " %";
         document.getElementById("field3").textContent = data.field3 + " lux";
         document.getElementById("field4").textContent = data.field4 + " °C";
+
+        const pompe = parseInt(data.field5);
+        const pompeEl = document.getElementById("field5");
+        pompeEl.textContent = pompe === 1 ? "ON" : "OFF";
+        pompeEl.className = "value " + (pompe === 1 ? "on" : "off");
+
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
     }
 
-    function envoyerCommande(valeur) {
-      const url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=${valeur}`;
-      fetch(url)
-        .then(() => alert(valeur === 1 ? "Pompe activée ✅" : "Pompe arrêtée ❌"))
-        .catch(() => alert("Erreur d'envoi"));
-    }
-
-    setInterval(updateData, 5000);
-    updateData();
+    setInterval(updateData, 5000); // mise à jour toutes les 5 secondes
+    updateData(); // appel initial
   </script>
 
 </body>
