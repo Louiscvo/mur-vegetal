@@ -52,18 +52,21 @@
       background-color: #aaa;
       cursor: not-allowed;
     }
+    #marioFrame {
+      display: none;
+      margin: 20px auto;
+      width: 640px;
+      height: 480px;
+      border: 3px solid #2C75FF;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
 
-  <h1 onclick="basculerModeJeu()">🌿 Mur Végétal – Données en direct</h1>
+  <h1 onclick="toggleMario()">🌿 Mur Végétal – Données en direct</h1>
 
-  <!-- Mini-jeu Mario caché -->
-  <div id="marioContainer" style="display: none; position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
-    width: 400px; height: 300px; background: #000; z-index: 999; border: 3px solid #2C75FF; border-radius: 10px;">
-    <canvas id="marioGame" width="400" height="300"></canvas>
-    <button onclick="quitterJeu()" style="position: absolute; top: 5px; right: 5px;">Fermer</button>
-  </div>
+  <iframe id="marioFrame" src="mariohtml5/main.html"></iframe>
 
   <div id="siteContent">
     <div class="card">
@@ -149,59 +152,24 @@
       }, duree * 1000);
     }
 
-    function basculerModeJeu() {
-      document.getElementById("siteContent").style.display = "none";
-      document.getElementById("marioContainer").style.display = "block";
-      startMarioGame();
-    }
-
-    function quitterJeu() {
-      document.getElementById("marioContainer").style.display = "none";
-      document.getElementById("siteContent").style.display = "block";
+    function toggleMario() {
+      const game = document.getElementById("marioFrame");
+      const site = document.getElementById("siteContent");
+      if (game.style.display === "none") {
+        game.style.display = "block";
+        site.style.display = "none";
+      } else {
+        game.style.display = "none";
+        site.style.display = "block";
+      }
     }
 
     document.addEventListener("keydown", function(event) {
-      if (event.key === "Escape") quitterJeu();
+      if (event.key === "Escape") {
+        document.getElementById("marioFrame").style.display = "none";
+        document.getElementById("siteContent").style.display = "block";
+      }
     });
-
-    function startMarioGame() {
-      const canvas = document.getElementById("marioGame");
-      const ctx = canvas.getContext("2d");
-      let marioX = 30, marioY = 250, velY = 0, jumping = false;
-      const gravity = 0.9, blockX = 300, blockY = 250;
-
-      function draw() {
-        ctx.fillStyle = "#87CEEB";
-        ctx.fillRect(0, 0, 400, 300);
-        ctx.fillStyle = "brown";
-        ctx.fillRect(blockX, blockY, 30, 30);
-        ctx.fillStyle = "red";
-        ctx.fillRect(marioX, marioY, 20, 20);
-      }
-
-      function update() {
-        if (jumping) {
-          velY -= gravity;
-          marioY -= velY;
-          if (marioY >= 250) {
-            marioY = 250;
-            velY = 0;
-            jumping = false;
-          }
-        }
-        draw();
-        requestAnimationFrame(update);
-      }
-
-      document.addEventListener("keydown", (e) => {
-        if (e.code === "Space" && !jumping) {
-          jumping = true;
-          velY = 10;
-        }
-      });
-
-      update();
-    }
 
     setInterval(updateData, 10000);
     updateData();
