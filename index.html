@@ -24,10 +24,26 @@
     .label {
       font-weight: bold;
       color: #444;
+      margin-bottom: 10px;
     }
     .value {
       font-size: 2em;
       color: #2C75FF;
+      margin: 10px 0;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+      background-color: #2C75FF;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1a52b4;
     }
   </style>
 </head>
@@ -55,27 +71,40 @@
     <div class="value" id="field4">...</div>
   </div>
 
+  <div class="card">
+    <div class="label">Commande Pompe</div>
+    <button onclick="envoyerCommande(1)">Activer la pompe 💧</button>
+    <button onclick="envoyerCommande(0)">Arrêter la pompe ❌</button>
+  </div>
+
   <script>
     const channelID = 2948206;
-    const readAPIKey = "D0TYQQ67TKJDODQ9"; // ta clé de lecture
+    const readAPIKey = "D0TYQQ67TKJDODQ9";
+    const writeAPIKey = "88EEXGWW7VMIBMSO";
 
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-
         document.getElementById("field1").textContent = data.field1 + " %";
         document.getElementById("field2").textContent = data.field2 + " %";
-        document.getElementById("field3").textContent = data.field3 + " lux"; // Luminosité affichée en lux
+        document.getElementById("field3").textContent = data.field3 + " lux";
         document.getElementById("field4").textContent = data.field4 + " °C";
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
     }
 
-    setInterval(updateData, 5000); // mise à jour toutes les 5 secondes
-    updateData(); // appel initial
+    function envoyerCommande(valeur) {
+      const url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=${valeur}`;
+      fetch(url)
+        .then(() => alert(valeur === 1 ? "Pompe activée ✅" : "Pompe arrêtée ❌"))
+        .catch(() => alert("Erreur d'envoi"));
+    }
+
+    setInterval(updateData, 5000);
+    updateData();
   </script>
 
 </body>
