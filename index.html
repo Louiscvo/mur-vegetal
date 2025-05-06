@@ -55,6 +55,20 @@
 </head>
 <body>
 
+  <!-- Logo en haut à gauche -->
+  <a onclick="toggleMario()" style="position: fixed; top: 10px; left: 10px; z-index: 999;">
+    <img src="https://e1.pngegg.com/pngimages/628/200/png-clipart-logo-de-feuille-verte-texte-plantes-bourgeon-tige-de-plante-silhouette-arbre-fleur.png"
+         alt="logo"
+         style="width: 40px; cursor: pointer;">
+  </a>
+
+  <!-- Mini-jeu Mario caché -->
+  <div id="marioContainer" style="display: none; position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+    width: 400px; height: 300px; background: #000; z-index: 999; border: 3px solid #2C75FF; border-radius: 10px;">
+    <canvas id="marioGame" width="400" height="300"></canvas>
+    <button onclick="toggleMario()" style="position: absolute; top: 5px; right: 5px;">Fermer</button>
+  </div>
+
   <h1>🌿 Mur Végétal – Données en direct</h1>
 
   <div class="card">
@@ -110,38 +124,92 @@
       const duree = parseInt(document.getElementById("duree").value || "30");
       let restant = duree;
 
-      // désactive le bouton
       btn.disabled = true;
       status.textContent = "⏳ Envoi de la commande...";
 
-      // envoyer field5 = 1
-      await fetch(`https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=1`);
-      status.textContent = `💡 Pompe activée (${restant} sec restantes)`;
+      await fetch(`https://api.thingspeak.com/update.json`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `api_key=${writeAPIKey}&field5=1`
+      });
 
-      // compte à rebours visuel
+      status.textContent = `💡 Pompe activée (${restant} sec restantes)`;
       const interval = setInterval(() => {
         restant--;
         status.textContent = `💡 Pompe activée (${restant} sec restantes)`;
       }, 1000);
 
-      // après délai, couper la LED
       setTimeout(async () => {
         clearInterval(interval);
         await fetch(`https://api.thingspeak.com/update.json`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `api_key=${writeAPIKey}&field5=0`
-      });
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: `api_key=${writeAPIKey}&field5=0`
+        });
 
         status.textContent = "💤 Pompe désactivée";
         btn.disabled = false;
       }, duree * 1000);
     }
 
-    setInterval(updateData, 10000); // refresh données toutes les 10 sec
-    updateData(); // au chargement
+    // ==================== Mini Mario Game ====================
+    function toggleMario() {
+      const conteneur = document.getElementById("marioContainer");
+      conteneur.style.display = (conteneur.style.display === "none") ? "block" : "none";
+      if (conteneur.style.display === "block") startMarioGame();
+    }
+
+    function startMarioGame() {
+      const canvas = document.getElementById("marioGame");
+      const ctx = canvas.getContext("2d");
+      let marioX = 30;
+      let marioY = 250;
+      let velY = 0;
+      let jumping = false;
+      const gravity = 0.9;
+      const blockX = 300;
+      const blockY = 250;
+
+      function draw() {
+        ctx.fillStyle = "#87CEEB";
+        ctx.fillRect(0, 0, 400, 300);
+        ctx.fillStyle = "brown";
+        ctx.fillRect(blockX, blockY, 30, 30);
+        ctx.fillStyle = "red";
+        ctx.fillRect(marioX, marioY, 20, 20);
+      }
+
+      function update() {
+        if (jumping) {
+          velY -= gravity;
+          marioY -= velY;
+          if (marioY >= 250) {
+            marioY = 250;
+            velY = 0;
+            jumping = false;
+          }
+        }
+        draw();
+        requestAnimationFrame(update);
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" && !jumping) {
+          jumping = true;
+          velY = 10;
+        }
+      });
+
+      update();
+    }
+
+    // Rafraîchissement des données capteurs
+    setInterval(updateData, 10000);
+    updateData();
   </script>
 
 </body>
