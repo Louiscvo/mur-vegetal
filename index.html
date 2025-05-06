@@ -47,8 +47,9 @@
       cursor: pointer;
       margin-left: 10px;
     }
-    button:hover {
-      background-color: #1e5ecc;
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
     }
   </style>
 </head>
@@ -77,9 +78,9 @@
   </div>
 
   <div class="card control">
-    <div class="label">⏱ Contrôle de la pompe</div>
+    <div class="label">⏱ Activer la pompe (LED)</div>
     <input type="number" id="duree" value="30" min="5" max="300"> secondes
-    <button onclick="activerPompe()">Activer</button>
+    <button id="btn" onclick="activerPompe()">Activer</button>
     <div id="status" style="margin-top:10px; color:#2C75FF;"></div>
   </div>
 
@@ -104,21 +105,36 @@
     }
 
     async function activerPompe() {
+      const btn = document.getElementById("btn");
+      const status = document.getElementById("status");
       const duree = parseInt(document.getElementById("duree").value || "30");
-      document.getElementById("status").textContent = `💡 Pompe activée pour ${duree} sec...`;
+      let restant = duree;
 
-      // Allume la LED (champ 5 = 1)
+      // désactive le bouton
+      btn.disabled = true;
+      status.textContent = "⏳ Envoi de la commande...";
+
+      // envoyer field5 = 1
       await fetch(`https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=1`);
+      status.textContent = `💡 Pompe activée (${restant} sec restantes)`;
 
-      // Éteint après la durée choisie
+      // compte à rebours visuel
+      const interval = setInterval(() => {
+        restant--;
+        status.textContent = `💡 Pompe activée (${restant} sec restantes)`;
+      }, 1000);
+
+      // après délai, couper la LED
       setTimeout(async () => {
+        clearInterval(interval);
         await fetch(`https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=0`);
-        document.getElementById("status").textContent = "💤 Pompe désactivée";
+        status.textContent = "💤 Pompe désactivée";
+        btn.disabled = false;
       }, duree * 1000);
     }
 
-    setInterval(updateData, 5000);
-    updateData();
+    setInterval(updateData, 10000); // refresh données toutes les 10 sec
+    updateData(); // au chargement
   </script>
 
 </body>
