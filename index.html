@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mur Végétal – Suivi en direct</title>
+  <title>Mur Végétal – Données en direct</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,6 +12,7 @@
     }
     h1 {
       color: #2C75FF;
+      cursor: pointer;
     }
     .card {
       background-color: white;
@@ -55,47 +56,42 @@
 </head>
 <body>
 
-  <!-- Logo en haut à gauche -->
-  <a onclick="toggleMario()" style="position: fixed; top: 10px; left: 10px; z-index: 999;">
-    <img src="https://e1.pngegg.com/pngimages/628/200/png-clipart-logo-de-feuille-verte-texte-plantes-bourgeon-tige-de-plante-silhouette-arbre-fleur.png"
-         alt="logo"
-         style="width: 40px; cursor: pointer;">
-  </a>
+  <h1 onclick="basculerModeJeu()">🌿 Mur Végétal – Données en direct</h1>
 
   <!-- Mini-jeu Mario caché -->
   <div id="marioContainer" style="display: none; position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
     width: 400px; height: 300px; background: #000; z-index: 999; border: 3px solid #2C75FF; border-radius: 10px;">
     <canvas id="marioGame" width="400" height="300"></canvas>
-    <button onclick="toggleMario()" style="position: absolute; top: 5px; right: 5px;">Fermer</button>
+    <button onclick="quitterJeu()" style="position: absolute; top: 5px; right: 5px;">Fermer</button>
   </div>
 
-  <h1 style="cursor: pointer;" onclick="toggleMario()">🌿 Mur Végétal – Données en direct</h1>
+  <div id="siteContent">
+    <div class="card">
+      <div class="label">Humidité du sol</div>
+      <div class="value" id="field1">...</div>
+    </div>
 
-  <div class="card">
-    <div class="label">Humidité du sol</div>
-    <div class="value" id="field1">...</div>
-  </div>
+    <div class="card">
+      <div class="label">Hygrométrie (air)</div>
+      <div class="value" id="field2">...</div>
+    </div>
 
-  <div class="card">
-    <div class="label">Hygrométrie (air)</div>
-    <div class="value" id="field2">...</div>
-  </div>
+    <div class="card">
+      <div class="label">Luminosité</div>
+      <div class="value" id="field3">...</div>
+    </div>
 
-  <div class="card">
-    <div class="label">Luminosité</div>
-    <div class="value" id="field3">...</div>
-  </div>
+    <div class="card">
+      <div class="label">Température</div>
+      <div class="value" id="field4">...</div>
+    </div>
 
-  <div class="card">
-    <div class="label">Température</div>
-    <div class="value" id="field4">...</div>
-  </div>
-
-  <div class="card control">
-    <div class="label">⏱ Activer la pompe (LED)</div>
-    <input type="number" id="duree" value="30" min="5" max="300"> secondes
-    <button id="btn" onclick="activerPompe()">Activer</button>
-    <div id="status" style="margin-top:10px; color:#2C75FF;"></div>
+    <div class="card control">
+      <div class="label">⏱ Activer la pompe (LED)</div>
+      <input type="number" id="duree" value="30" min="5" max="300"> secondes
+      <button id="btn" onclick="activerPompe()">Activer</button>
+      <div id="status" style="margin-top:10px; color:#2C75FF;"></div>
+    </div>
   </div>
 
   <script>
@@ -108,7 +104,6 @@
       try {
         const res = await fetch(url);
         const data = await res.json();
-
         document.getElementById("field1").textContent = data.field1 + " %";
         document.getElementById("field2").textContent = data.field2 + " %";
         document.getElementById("field3").textContent = data.field3 + " lux";
@@ -126,7 +121,6 @@
 
       btn.disabled = true;
       status.textContent = "⏳ Envoi de la commande...";
-
       await fetch(`https://api.thingspeak.com/update.json`, {
         method: "POST",
         headers: {
@@ -150,29 +144,31 @@
           },
           body: `api_key=${writeAPIKey}&field5=0`
         });
-
         status.textContent = "💤 Pompe désactivée";
         btn.disabled = false;
       }, duree * 1000);
     }
 
-    // ==================== Mini Mario Game ====================
-    function toggleMario() {
-      const conteneur = document.getElementById("marioContainer");
-      conteneur.style.display = (conteneur.style.display === "none") ? "block" : "none";
-      if (conteneur.style.display === "block") startMarioGame();
+    function basculerModeJeu() {
+      document.getElementById("siteContent").style.display = "none";
+      document.getElementById("marioContainer").style.display = "block";
+      startMarioGame();
     }
+
+    function quitterJeu() {
+      document.getElementById("marioContainer").style.display = "none";
+      document.getElementById("siteContent").style.display = "block";
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") quitterJeu();
+    });
 
     function startMarioGame() {
       const canvas = document.getElementById("marioGame");
       const ctx = canvas.getContext("2d");
-      let marioX = 30;
-      let marioY = 250;
-      let velY = 0;
-      let jumping = false;
-      const gravity = 0.9;
-      const blockX = 300;
-      const blockY = 250;
+      let marioX = 30, marioY = 250, velY = 0, jumping = false;
+      const gravity = 0.9, blockX = 300, blockY = 250;
 
       function draw() {
         ctx.fillStyle = "#87CEEB";
@@ -207,7 +203,6 @@
       update();
     }
 
-    // Rafraîchissement des données capteurs
     setInterval(updateData, 10000);
     updateData();
   </script>
