@@ -35,6 +35,16 @@
     .off {
       color: red;
     }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2C75FF;
+      color: white;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -63,12 +73,16 @@
 
   <div class="card">
     <div class="label">Pompe</div>
-    <div class="value" id="field5" class="off">...</div>
+    <div class="value" id="field5">...</div>
+    <button id="toggleButton">Activer/Désactiver la pompe</button>
   </div>
 
   <script>
     const channelID = 2948206;
     const readAPIKey = "D0TYQQ67TKJDODQ9";
+    const writeAPIKey = "88EEXGWW7VMIBMSO";
+
+    let pompeEtat = 0; // 0 = off, 1 = on
 
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
@@ -81,18 +95,32 @@
         document.getElementById("field3").textContent = data.field3 + " lux";
         document.getElementById("field4").textContent = data.field4 + " °C";
 
-        const pompe = parseInt(data.field5);
+        const etat = parseInt(data.field5);
+        pompeEtat = etat;
         const pompeEl = document.getElementById("field5");
-        pompeEl.textContent = pompe === 1 ? "ON" : "OFF";
-        pompeEl.className = "value " + (pompe === 1 ? "on" : "off");
+        pompeEl.textContent = etat === 1 ? "ON" : "OFF";
+        pompeEl.className = "value " + (etat === 1 ? "on" : "off");
 
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
     }
 
-    setInterval(updateData, 5000); // mise à jour toutes les 5 secondes
-    updateData(); // appel initial
+    document.getElementById("toggleButton").addEventListener("click", async () => {
+      const newEtat = pompeEtat === 1 ? 0 : 1;
+      const updateUrl = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=${newEtat}`;
+      try {
+        const res = await fetch(updateUrl);
+        const text = await res.text();
+        console.log("Mise à jour envoyée :", text);
+        setTimeout(updateData, 2000); // Mettre à jour l’affichage après 2s
+      } catch (err) {
+        console.error("Erreur lors de la mise à jour :", err);
+      }
+    });
+
+    setInterval(updateData, 5000);
+    updateData();
   </script>
 
 </body>
