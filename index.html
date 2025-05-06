@@ -29,11 +29,26 @@
       font-size: 2em;
       color: #2C75FF;
     }
-    .on {
-      color: green;
+    .control {
+      margin-top: 30px;
     }
-    .off {
-      color: red;
+    input[type="number"] {
+      padding: 5px;
+      font-size: 1em;
+      width: 80px;
+    }
+    button {
+      background-color: #2C75FF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    button:hover {
+      background-color: #1e5ecc;
     }
   </style>
 </head>
@@ -61,14 +76,17 @@
     <div class="value" id="field4">...</div>
   </div>
 
-  <div class="card">
-    <div class="label">Pompe</div>
-    <div class="value" id="field5" class="off">...</div>
+  <div class="card control">
+    <div class="label">⏱ Contrôle de la pompe</div>
+    <input type="number" id="duree" value="30" min="5" max="300"> secondes
+    <button onclick="activerPompe()">Activer</button>
+    <div id="status" style="margin-top:10px; color:#2C75FF;"></div>
   </div>
 
   <script>
     const channelID = 2948206;
     const readAPIKey = "D0TYQQ67TKJDODQ9";
+    const writeAPIKey = "88EEXGWW7VMIBMSO";
 
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
@@ -80,19 +98,27 @@
         document.getElementById("field2").textContent = data.field2 + " %";
         document.getElementById("field3").textContent = data.field3 + " lux";
         document.getElementById("field4").textContent = data.field4 + " °C";
-
-        const pompe = parseInt(data.field5);
-        const pompeEl = document.getElementById("field5");
-        pompeEl.textContent = pompe === 1 ? "ON" : "OFF";
-        pompeEl.className = "value " + (pompe === 1 ? "on" : "off");
-
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
     }
 
-    setInterval(updateData, 5000); // mise à jour toutes les 5 secondes
-    updateData(); // appel initial
+    async function activerPompe() {
+      const duree = parseInt(document.getElementById("duree").value || "30");
+      document.getElementById("status").textContent = `💡 Pompe activée pour ${duree} sec...`;
+
+      // Allume la LED (champ 5 = 1)
+      await fetch(`https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=1`);
+
+      // Éteint après la durée choisie
+      setTimeout(async () => {
+        await fetch(`https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=0`);
+        document.getElementById("status").textContent = "💤 Pompe désactivée";
+      }, duree * 1000);
+    }
+
+    setInterval(updateData, 5000);
+    updateData();
   </script>
 
 </body>
