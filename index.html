@@ -102,15 +102,19 @@
     const readAPIKey = "D0TYQQ67TKJDODQ9";
     const writeAPIKey = "88EEXGWW7VMIBMSO";
 
+    function afficherValeur(valeur, unite = "") {
+      return valeur === null || valeur === "null" ? "Donnée manquante" : valeur + unite;
+    }
+
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-        document.getElementById("field1").textContent = data.field1 + " %";
-        document.getElementById("field2").textContent = data.field2 + " %";
-        document.getElementById("field3").textContent = data.field3 + " lux";
-        document.getElementById("field4").textContent = data.field4 + " °C";
+        document.getElementById("field1").textContent = afficherValeur(data.field1, " %");
+        document.getElementById("field2").textContent = afficherValeur(data.field2, " %");
+        document.getElementById("field3").textContent = afficherValeur(data.field3, " lux");
+        document.getElementById("field4").textContent = afficherValeur(data.field4, " °C");
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
