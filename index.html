@@ -71,22 +71,22 @@
   <div id="siteContent">
     <div class="card">
       <div class="label">Humidité du sol</div>
-      <div class="value" id="field1">...</div>
+      <div class="value" id="sol">...</div>
     </div>
 
     <div class="card">
       <div class="label">Hygrométrie (air)</div>
-      <div class="value" id="field2">...</div>
+      <div class="value" id="hygro">...</div>
     </div>
 
     <div class="card">
       <div class="label">Luminosité</div>
-      <div class="value" id="field3">...</div>
+      <div class="value" id="lux">...</div>
     </div>
 
     <div class="card">
       <div class="label">Température</div>
-      <div class="value" id="field4">...</div>
+      <div class="value" id="temp">...</div>
     </div>
 
     <div class="card control">
@@ -102,19 +102,29 @@
     const readAPIKey = "D0TYQQ67TKJDODQ9";
     const writeAPIKey = "88EEXGWW7VMIBMSO";
 
-    function afficherValeur(valeur, unite = "") {
-      return valeur === null || valeur === "null" ? "Donnée manquante" : valeur + unite;
-    }
-
     async function updateData() {
       const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-        document.getElementById("field1").textContent = afficherValeur(data.field1, " %");
-        document.getElementById("field2").textContent = afficherValeur(data.field2, " %");
-        document.getElementById("field3").textContent = afficherValeur(data.field3, " lux");
-        document.getElementById("field4").textContent = afficherValeur(data.field4, " °C");
+
+        // field1 : humidité du sol (brute), convertir : 0 = 0 %, 700 = 100 %
+        const solBrut = parseInt(data.field1);
+        const solPourcent = !isNaN(solBrut) ? Math.min(100, Math.max(0, Math.round((solBrut * 100) / 700))) : null;
+        document.getElementById("sol").textContent = solPourcent !== null ? solPourcent + " %" : "— %";
+
+        // field2 : hygrométrie
+        const hygro = parseFloat(data.field2);
+        document.getElementById("hygro").textContent = !isNaN(hygro) ? hygro.toFixed(2) + " %" : "— %";
+
+        // field3 : luminosité
+        const lux = parseInt(data.field3);
+        document.getElementById("lux").textContent = !isNaN(lux) ? lux + " lux" : "— lux";
+
+        // field4 : température
+        const temp = parseFloat(data.field4);
+        document.getElementById("temp").textContent = !isNaN(temp) ? temp.toFixed(1) + " °C" : "— °C";
+
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
@@ -130,9 +140,7 @@
       status.textContent = "⏳ Envoi de la commande...";
       await fetch(`https://api.thingspeak.com/update.json`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `api_key=${writeAPIKey}&field5=1`
       });
 
@@ -146,9 +154,7 @@
         clearInterval(interval);
         await fetch(`https://api.thingspeak.com/update.json`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: `api_key=${writeAPIKey}&field5=0`
         });
         status.textContent = "💤 Pompe désactivée";
@@ -159,13 +165,8 @@
     function toggleMario() {
       const game = document.getElementById("marioFrame");
       const site = document.getElementById("siteContent");
-      if (game.style.display === "none") {
-        game.style.display = "block";
-        site.style.display = "none";
-      } else {
-        game.style.display = "none";
-        site.style.display = "block";
-      }
+      game.style.display = game.style.display === "none" ? "block" : "none";
+      site.style.display = site.style.display === "none" ? "block" : "none";
     }
 
     document.addEventListener("keydown", function(event) {
