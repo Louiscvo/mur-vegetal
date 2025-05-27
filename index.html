@@ -7,7 +7,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
-      background: radial-gradient(circle at center, #eafaf8, #d0f0ed);
+      background: radial-gradient(circle at center, #000000, #0a0a0a);
       overflow: hidden;
       text-align: center;
     }
@@ -19,11 +19,12 @@
       background: transparent;
     }
     h1 {
-      color: #2C75FF;
+      color: #FFD700;
       font-size: 2.5em;
       padding: 30px 0;
       z-index: 10;
       position: relative;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
     }
   </style>
 </head>
@@ -42,17 +43,17 @@
     canvas.height = window.innerHeight;
   }
 
-  function createParticles(count = 90) {
+  function createParticles(count = 50) {
     particles = [];
     for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 1,
-        dx: (Math.random() - 0.5) * 0.2,
-        dy: (Math.random() - 0.5) * 0.2,
+        r: Math.random() * 2 + 2,
+        dx: (Math.random() - 0.5) * 0.3,
+        dy: (Math.random() - 0.5) * 0.3,
         alpha: Math.random() * 0.5 + 0.5,
-        pulse: Math.random() * 0.02 + 0.005
+        pulse: Math.random() * 0.015 + 0.005
       });
     }
   }
@@ -62,19 +63,16 @@
     for (let p of particles) {
       ctx.save();
       ctx.globalAlpha = p.alpha;
-      ctx.shadowBlur = 60;
+      ctx.shadowBlur = 100;
       ctx.shadowColor = "rgba(255, 223, 0, 1)";
-      ctx.fillStyle = "rgba(255, 223, 0, 0.9)";
+      ctx.fillStyle = "rgba(255, 223, 0, 1)";
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 1.8, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
-      // déplacement
       p.x += p.dx;
       p.y += p.dy;
-
-      // pulsation douce
       p.alpha += p.pulse;
       if (p.alpha > 1 || p.alpha < 0.4) p.pulse *= -1;
 
