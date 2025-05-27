@@ -3,40 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <title>Mur Végétal – Données en direct</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #e6f2f1;
-      text-align: center;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #e6f2f1);
+      margin: 0;
       padding: 20px;
+      text-align: center;
     }
     h1 {
       color: #2C75FF;
       cursor: pointer;
+      margin-bottom: 30px;
+    }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
     }
     .card {
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin: 15px auto;
-      width: 300px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 30px;
+      width: 260px;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
     }
     .label {
-      font-weight: bold;
-      color: #444;
+      font-weight: 600;
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 10px;
     }
     .value {
-      font-size: 2em;
+      font-size: 2.2em;
       color: #2C75FF;
+      font-weight: 600;
     }
     .control {
-      margin-top: 30px;
+      margin-top: 40px;
     }
     input[type="number"] {
-      padding: 5px;
+      padding: 8px;
       font-size: 1em;
-      width: 80px;
+      width: 90px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
     button {
       background-color: #2C75FF;
@@ -47,6 +67,10 @@
       border-radius: 8px;
       cursor: pointer;
       margin-left: 10px;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #155bd5;
     }
     button:disabled {
       background-color: #aaa;
@@ -60,40 +84,43 @@
       border: 3px solid #2C75FF;
       border-radius: 8px;
     }
+    #status {
+      margin-top: 10px;
+      color: #2C75FF;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
-
   <h1 onclick="toggleMario()">🌿 Mur Végétal – Données en direct</h1>
 
   <iframe id="marioFrame" src="jeux/main.html"></iframe>
 
   <div id="siteContent">
-    <div class="card">
-      <div class="label">Humidité du sol</div>
-      <div class="value" id="sol">...</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Hygrométrie (air)</div>
-      <div class="value" id="hygro">...</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Luminosité</div>
-      <div class="value" id="lux">...</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Température</div>
-      <div class="value" id="temp">...</div>
+    <div class="grid">
+      <div class="card">
+        <div class="label">Humidité du sol</div>
+        <div class="value" id="sol">...</div>
+      </div>
+      <div class="card">
+        <div class="label">Hygrométrie (air)</div>
+        <div class="value" id="hygro">...</div>
+      </div>
+      <div class="card">
+        <div class="label">Luminosité</div>
+        <div class="value" id="lux">...</div>
+      </div>
+      <div class="card">
+        <div class="label">Température</div>
+        <div class="value" id="temp">...</div>
+      </div>
     </div>
 
     <div class="card control">
       <div class="label">⏱ Activer la pompe (LED)</div>
       <input type="number" id="duree" value="30" min="5" max="300"> secondes
       <button id="btn" onclick="activerPompe()">Activer</button>
-      <div id="status" style="margin-top:10px; color:#2C75FF;"></div>
+      <div id="status"></div>
     </div>
   </div>
 
@@ -108,23 +135,18 @@
         const res = await fetch(url);
         const data = await res.json();
 
-        // field1 : humidité du sol (brute), convertir : 0 = 0 %, 700 = 100 %
         const solBrut = parseInt(data.field1);
         const solPourcent = !isNaN(solBrut) ? Math.min(100, Math.max(0, Math.round((solBrut * 100) / 700))) : null;
         document.getElementById("sol").textContent = solPourcent !== null ? solPourcent + " %" : "— %";
 
-        // field2 : hygrométrie
         const hygro = parseFloat(data.field2);
         document.getElementById("hygro").textContent = !isNaN(hygro) ? hygro.toFixed(2) + " %" : "— %";
 
-        // field3 : luminosité
         const lux = parseInt(data.field3);
         document.getElementById("lux").textContent = !isNaN(lux) ? lux + " lux" : "— lux";
 
-        // field4 : température
         const temp = parseFloat(data.field4);
         document.getElementById("temp").textContent = !isNaN(temp) ? temp.toFixed(1) + " °C" : "— °C";
-
       } catch (e) {
         console.error("Erreur de chargement :", e);
       }
@@ -179,6 +201,5 @@
     setInterval(updateData, 10000);
     updateData();
   </script>
-
 </body>
 </html>
