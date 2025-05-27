@@ -2,178 +2,39 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mur Végétal – Données en direct</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Mur Végétal – Glow Magique</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(to right, #e0f7fa, #e6f2f1);
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at center, #eafaf8, #d0f0ed);
       overflow: hidden;
-      padding: 20px;
       text-align: center;
-      position: relative;
     }
-    #particles {
+    canvas {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       z-index: -1;
-      pointer-events: none;
+      background: transparent;
     }
     h1 {
       color: #2C75FF;
-      margin-bottom: 30px;
-      cursor: pointer;
-    }
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-    .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      padding: 30px;
-      width: 260px;
-      transition: transform 0.3s ease;
-    }
-    .card:hover { transform: translateY(-5px); }
-    .label {
-      font-weight: 600;
-      font-size: 1.1em;
-      color: #333;
-      margin-bottom: 10px;
-    }
-    .value {
-      font-size: 2.2em;
-      color: #2C75FF;
-      font-weight: 600;
-    }
-    .control { margin-top: 40px; }
-    input[type="number"] {
-      padding: 8px;
-      font-size: 1em;
-      width: 90px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #2C75FF;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1em;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-    button:hover { background-color: #155bd5; }
-    button:disabled { background-color: #aaa; cursor: not-allowed; }
-    #status {
-      margin-top: 10px;
-      color: #2C75FF;
-      font-weight: 600;
+      font-size: 2.5em;
+      padding: 30px 0;
+      z-index: 10;
+      position: relative;
     }
   </style>
 </head>
 <body>
 
 <canvas id="particles"></canvas>
-
-<h1>🌿 Mur Végétal – Données en direct</h1>
-
-<div class="grid">
-  <div class="card">
-    <div class="label">Humidité du sol</div>
-    <div class="value" id="sol">...</div>
-  </div>
-  <div class="card">
-    <div class="label">Hygrométrie (air)</div>
-    <div class="value" id="hygro">...</div>
-  </div>
-  <div class="card">
-    <div class="label">Luminosité</div>
-    <div class="value" id="lux">...</div>
-  </div>
-  <div class="card">
-    <div class="label">Température</div>
-    <div class="value" id="temp">...</div>
-  </div>
-</div>
-
-<div class="card control">
-  <div class="label">⏱ Activer la pompe (LED)</div>
-  <input type="number" id="duree" value="30" min="5" max="300"> secondes
-  <button id="btn" onclick="activerPompe()">Activer</button>
-  <div id="status"></div>
-</div>
+<h1>🌿 Mur Végétal – Glow Magique</h1>
 
 <script>
-  const channelID = 2948206;
-  const readAPIKey = "D0TYQQ67TKJDODQ9";
-  const writeAPIKey = "88EEXGWW7VMIBMSO";
-
-  async function updateData() {
-    const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const solBrut = parseInt(data.field1);
-      const solPourcent = !isNaN(solBrut) ? Math.min(100, Math.max(0, Math.round((solBrut * 100) / 700))) : null;
-      document.getElementById("sol").textContent = solPourcent !== null ? solPourcent + " %" : "— %";
-
-      const hygro = parseFloat(data.field2);
-      document.getElementById("hygro").textContent = !isNaN(hygro) ? hygro.toFixed(2) + " %" : "— %";
-
-      const lux = parseInt(data.field3);
-      document.getElementById("lux").textContent = !isNaN(lux) ? lux + " lux" : "— lux";
-
-      const temp = parseFloat(data.field4);
-      document.getElementById("temp").textContent = !isNaN(temp) ? temp.toFixed(1) + " °C" : "— °C";
-    } catch (e) {
-      console.error("Erreur de chargement :", e);
-    }
-  }
-
-  async function activerPompe() {
-    const btn = document.getElementById("btn");
-    const status = document.getElementById("status");
-    const duree = parseInt(document.getElementById("duree").value || "30");
-    let restant = duree;
-
-    btn.disabled = true;
-    status.textContent = "⏳ Envoi de la commande...";
-    await fetch(`https://api.thingspeak.com/update.json`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `api_key=${writeAPIKey}&field5=1`
-    });
-
-    status.textContent = `💡 Pompe activée (${restant} sec restantes)`;
-    const interval = setInterval(() => {
-      restant--;
-      status.textContent = `💡 Pompe activée (${restant} sec restantes)`;
-    }, 1000);
-
-    setTimeout(async () => {
-      clearInterval(interval);
-      await fetch(`https://api.thingspeak.com/update.json`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `api_key=${writeAPIKey}&field5=0`
-      });
-      status.textContent = "💤 Pompe désactivée";
-      btn.disabled = false;
-    }, duree * 1000);
-  }
-
-  // === Particules dorées éclatantes avec lueur ===
-  const canvas = document.getElementById('particles');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById("particles");
+  const ctx = canvas.getContext("2d");
   let particles = [];
 
   function resizeCanvas() {
@@ -181,50 +42,56 @@
     canvas.height = window.innerHeight;
   }
 
-  function createParticles() {
+  function createParticles(count = 90) {
     particles = [];
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 1.5 + 1.5,
-        dx: (Math.random() - 0.5) * 0.3,
-        dy: (Math.random() - 0.5) * 0.3
+        r: Math.random() * 2 + 1,
+        dx: (Math.random() - 0.5) * 0.2,
+        dy: (Math.random() - 0.5) * 0.2,
+        alpha: Math.random() * 0.5 + 0.5,
+        pulse: Math.random() * 0.02 + 0.005
       });
     }
   }
 
-  function animateParticles() {
+  function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let p of particles) {
       ctx.save();
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = 'rgba(255, 223, 0, 1)';
-      ctx.fillStyle = 'rgba(255, 223, 0, 0.95)';
+      ctx.globalAlpha = p.alpha;
+      ctx.shadowBlur = 60;
+      ctx.shadowColor = "rgba(255, 223, 0, 1)";
+      ctx.fillStyle = "rgba(255, 223, 0, 0.9)";
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r * 1.8, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
+      // déplacement
       p.x += p.dx;
       p.y += p.dy;
+
+      // pulsation douce
+      p.alpha += p.pulse;
+      if (p.alpha > 1 || p.alpha < 0.4) p.pulse *= -1;
 
       if (p.x <= 0 || p.x >= canvas.width) p.dx *= -1;
       if (p.y <= 0 || p.y >= canvas.height) p.dy *= -1;
     }
-    requestAnimationFrame(animateParticles);
+    requestAnimationFrame(animate);
   }
 
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     resizeCanvas();
     createParticles();
   });
 
   resizeCanvas();
   createParticles();
-  animateParticles();
-  setInterval(updateData, 10000);
-  updateData();
+  animate();
 </script>
 
 </body>
