@@ -171,7 +171,7 @@
     }, duree * 1000);
   }
 
-  // === Particules dorées animées ===
+  // === Particules dorées avec effet glow ===
   const canvas = document.getElementById('particles');
   const ctx = canvas.getContext('2d');
   let particles = [];
@@ -199,8 +199,14 @@
     for (let p of particles) {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
       ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = 'transparent';
 
       p.x += p.dx;
       p.y += p.dy;
