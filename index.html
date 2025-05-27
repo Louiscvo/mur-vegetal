@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mur Végétal – Glow Magique</title>
+  <title>Mur Végétal – Glow Intense</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -24,7 +24,7 @@
       padding: 30px 0;
       z-index: 10;
       position: relative;
-      text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+      text-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
     }
   </style>
 </head>
@@ -62,15 +62,31 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let p of particles) {
       ctx.save();
-      ctx.globalAlpha = p.alpha;
+      ctx.globalAlpha = p.alpha * 0.5;
+
+      // HALO EXTERNE
+      ctx.fillStyle = "rgba(255, 223, 0, 0.08)";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      // AURA MOYENNE
+      ctx.fillStyle = "rgba(255, 223, 0, 0.2)";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // PARTICULE CENTRALE
       ctx.shadowBlur = 100;
       ctx.shadowColor = "rgba(255, 223, 0, 1)";
-      ctx.fillStyle = "rgba(255, 223, 0, 1)";
+      ctx.fillStyle = "rgba(255, 223, 0, 0.95)";
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, p.r * 2.2, 0, Math.PI * 2);
       ctx.fill();
+
       ctx.restore();
 
+      // Mouvements et pulsation
       p.x += p.dx;
       p.y += p.dy;
       p.alpha += p.pulse;
